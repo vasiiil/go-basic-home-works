@@ -89,22 +89,22 @@ func getUserCurrency(excludeCurrencyCode string) (string, error) {
 }
 
 func convert(value float64, source string, target string) (float64, error) {
-	const usdToEur float64 = 1.4
+	const eurToUsd float64 = 1.4
 	const usdToRub float64 = 94
-	const eurToRub = usdToEur * usdToRub
+	const eurToRub = eurToUsd * usdToRub
 
 	switch source {
 	case "u":
 		switch target {
 		case "e":
-			return value / usdToEur, nil
+			return value / eurToUsd, nil
 		case "r":
 			return value * usdToRub, nil
 		}
 	case "e":
 		switch target {
 		case "u":
-			return value / usdToEur, nil
+			return value * eurToUsd, nil
 		case "r":
 			return value * eurToRub, nil
 		}
