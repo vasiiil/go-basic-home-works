@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+type tCourse = map[string]float64
+
 const EMPTY_CURRENCY_ERROR_CODE = "EMPTY_VALUE"
 const UNKNOWN_CURRENCY_ERROR_CODE = "UNKNOWN_VALUE"
 const EXCLUDE_CURRENCY_ERROR_CODE = "EXCLUDE_VALUE"
@@ -92,30 +94,27 @@ func convert(value float64, source string, target string) (float64, error) {
 	const eurToUsd float64 = 1.4
 	const usdToRub float64 = 94
 	const eurToRub = eurToUsd * usdToRub
-
-	switch source {
-	case "u":
-		switch target {
-		case "e":
-			return value / eurToUsd, nil
-		case "r":
-			return value * usdToRub, nil
-		}
-	case "e":
-		switch target {
-		case "u":
-			return value * eurToUsd, nil
-		case "r":
-			return value * eurToRub, nil
-		}
-	case "r":
-		switch target {
-		case "u":
-			return value / usdToRub, nil
-		case "e":
-			return value / eurToRub, nil
-		}
+	courses := map[string]tCourse{
+		"e": {
+			"u": eurToUsd,
+			"r": eurToRub,
+		},
+		"r": {
+			"e": 1 / eurToRub,
+			"u": 1 / usdToRub,
+		},
+		"u": {
+			"e": 1 / eurToUsd,
+			"r": usdToRub,
+		},
 	}
-
-	return 0, errors.New("UNKNOWN_CURRENCIES")
+	sourceM, ok := courses[source]
+	if !ok {
+		return 0, errors.New("UNKNOWN_CURRENCIES")
+	}
+	course, ok := sourceM[target]
+	if !ok {
+		return 0, errors.New("UNKNOWN_CURRENCIES")
+	}
+	return value * course, nil
 }
