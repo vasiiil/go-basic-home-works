@@ -13,10 +13,16 @@ const UNKNOWN_CURRENCY_ERROR_CODE = "UNKNOWN_VALUE"
 const EXCLUDE_CURRENCY_ERROR_CODE = "EXCLUDE_VALUE"
 
 func main() {
+	coursesMap := tCourse{
+		"e": 104,
+		"r": 1,
+		"u": 94,
+	}
+
 	sourceCurrecyCode := getCurrency(false, "")
 	value := getUserInput()
 	targerCurrecyCode := getCurrency(true, sourceCurrecyCode)
-	convertedValue, _ := convert(value, sourceCurrecyCode, targerCurrecyCode)
+	convertedValue, _ := convert(&coursesMap, value, sourceCurrecyCode, targerCurrecyCode)
 	fmt.Printf("%.2f", convertedValue)
 }
 
@@ -90,31 +96,14 @@ func getUserCurrency(excludeCurrencyCode string) (string, error) {
 	return currencyCode, nil
 }
 
-func convert(value float64, source string, target string) (float64, error) {
-	const eurToUsd float64 = 1.4
-	const usdToRub float64 = 94
-	const eurToRub = eurToUsd * usdToRub
-	courses := map[string]tCourse{
-		"e": {
-			"u": eurToUsd,
-			"r": eurToRub,
-		},
-		"r": {
-			"e": 1 / eurToRub,
-			"u": 1 / usdToRub,
-		},
-		"u": {
-			"e": 1 / eurToUsd,
-			"r": usdToRub,
-		},
-	}
-	sourceM, ok := courses[source]
+func convert(courses *tCourse, value float64, source string, target string) (float64, error) {
+	sourceInRubles, ok := (*courses)[source]
 	if !ok {
 		return 0, errors.New("UNKNOWN_CURRENCIES")
 	}
-	course, ok := sourceM[target]
+	targetInRubles, ok := (*courses)[target]
 	if !ok {
 		return 0, errors.New("UNKNOWN_CURRENCIES")
 	}
-	return value * course, nil
+	return value * (sourceInRubles / targetInRubles), nil
 }
