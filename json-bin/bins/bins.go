@@ -18,7 +18,7 @@ func NewBin(id string, private bool, createdAt time.Time, name string) *Bin {
 	}
 }
 
-type BinList = []Bin
+type BinList []Bin
 
 func NewBinList() []Bin {
 	return make([]Bin, 0)
