@@ -15,7 +15,7 @@ func ReadFile(fileName string) ([]byte, error) {
 	}
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		color.Red("Ошибка чтения")
+		color.Red("Ошибка чтения: " + err.Error())
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func WriteFile(content []byte, name string) {
 
 func isJson(fileName string) error {
 	ext := filepath.Ext(fileName)
-	if ext != "json" {
+	if ext != ".json" {
 		return errors.New("NOT_JSON")
 	}
 	return nil
