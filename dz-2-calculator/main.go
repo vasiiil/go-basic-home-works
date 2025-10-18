@@ -83,13 +83,20 @@ func calculate(operation string, numbers []int) (float64, error) {
 		sum += float64(value)
 	}
 
-	switch operation {
-	case "a":
-		return sum / float64(len(numbers)), nil
-	case "s":
-		return sum, nil
-	case "m":
-		return median(numbers), nil
+	operations := map[string]func()float64{
+		"a": func() float64 {
+			return sum / float64(len(numbers))
+		},
+		"s": func() float64 {
+			return sum
+		},
+		"m": func() float64 {
+			return median(numbers)
+		},
+	}
+	f := operations[operation]
+	if f != nil {
+		return f(), nil
 	}
 
 	return 0.0, errors.New("INVALID_OPERATION")
