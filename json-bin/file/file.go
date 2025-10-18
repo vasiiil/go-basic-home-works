@@ -2,39 +2,50 @@ package file
 
 import (
 	"errors"
+	"json-bin/output"
 	"os"
 	"path/filepath"
 
 	"github.com/fatih/color"
 )
 
-func ReadFile(fileName string) ([]byte, error) {
+type JsonDb struct {
+	fileName string
+}
+
+func New(fileName string) (*JsonDb, error) {
 	err := isJson(fileName)
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(fileName)
+	return &JsonDb{
+		fileName: fileName,
+	}, nil
+}
+
+func (db *JsonDb) Read() ([]byte, error) {
+	data, err := os.ReadFile(db.fileName)
 	if err != nil {
-		color.Red("Ошибка чтения: " + err.Error())
-		return nil, err
+		output.PrintError("Ошибка чтения:")
+		output.PrintError(err)
+		return []byte{}, err
 	}
 
 	return data, nil
 }
 
-func WriteFile(content []byte, name string) {
-	file, err := os.Create(name)
+func (db *JsonDb) Write(content []byte) error {
+	file, err := os.Create(db.fileName)
 	if err != nil {
-		color.Red(err.Error())
-		return
+		return err
 	}
 	defer file.Close()
 	_, err = file.Write(content)
 	if err != nil {
-		color.Red(err.Error())
-		return
+		return err
 	}
 	color.Green("Запись успешна")
+	return nil
 }
 
 func isJson(fileName string) error {
