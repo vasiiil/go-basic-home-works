@@ -81,8 +81,10 @@ func handleBinResponse(method string, response []byte) (*bins.Bin, error) {
 	color.Cyan(method + " bin record\n")
 	output.PrintJson(data.Record)
 
-	color.Cyan(method + " bin metadata\n")
-	output.PrintJson(data.Metadata)
+	if method != "PUT" {
+		color.Cyan(method + " bin metadata\n")
+		output.PrintJson(data.Metadata)
+	}
 
 	return &data.Metadata, err
 }
@@ -126,6 +128,29 @@ func (api *Api) Create(record *bins.BinRecord) (*bins.Bin, error) {
 	}
 
 	bin, err := handleBinResponse("POST", response)
+	if err != nil {
+		return nil, err
+	}
+
+	return bin, nil
+}
+
+func (api *Api) Update(id string, record *bins.BinRecord) (*bins.Bin, error) {
+	if id == "" {
+		return nil, errors.New("empty id")
+	}
+
+	body, err := binRecordToJson(record)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := api.request("PUT", "/"+id, body)
+	if err != nil {
+		return nil, err
+	}
+
+	bin, err := handleBinResponse("PUT", response)
 	if err != nil {
 		return nil, err
 	}

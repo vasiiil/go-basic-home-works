@@ -33,6 +33,7 @@ func parseFlags() (func(string), string) {
 	flagGet := flag.Bool("get", false, "Flag for call Get Bin")
 	flagCreate := flag.Bool("create", false, "Flag for call Create Bin")
 	flagDelete := flag.Bool("delete", false, "Flag for call Delete Bin")
+	flagUpdate := flag.Bool("update", false, "Flag for call Update Bin")
 	flagList := flag.Bool("list", false, "Flag for call List Bins in Storage")
 	id := flag.String("id", "", "Id of Bin")
 	flag.Parse()
@@ -40,6 +41,7 @@ func parseFlags() (func(string), string) {
 	isGet := *flagGet
 	isCreate := *flagCreate
 	isDelete := *flagDelete
+	isUpdate := *flagUpdate
 	isList := *flagList
 
 	sum := 0
@@ -57,6 +59,11 @@ func parseFlags() (func(string), string) {
 	if isDelete {
 		sum++
 		action = delete
+		idRequired = true
+	}
+	if isUpdate {
+		sum++
+		action = update
 		idRequired = true
 	}
 	if isList {
@@ -94,9 +101,6 @@ func create(_ string) {
 		return
 	}
 
-	color.Cyan("Created bin:\n")
-	output.PrintJson(bin)
-
 	if bin != nil {
 		added := store.AddBin(bin)
 		if added {
@@ -104,6 +108,16 @@ func create(_ string) {
 		} else {
 			color.Yellow("Не добавлено")
 		}
+	}
+}
+
+func update(id string) {
+	binRecord := bins.GenerateRecord()
+	_, err := _api.Update(id, binRecord)
+	if err != nil {
+		output.PrintError("Error in update")
+		output.PrintError(err)
+		return
 	}
 }
 
