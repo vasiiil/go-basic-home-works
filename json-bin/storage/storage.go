@@ -39,6 +39,7 @@ func New(db Db) *StorageWithDb {
 	err = json.Unmarshal(data, &storage)
 	if err != nil {
 		output.PrintError("Не удалось разобрать data.json")
+		output.PrintError(err)
 		return &StorageWithDb{
 			Storage: Storage{
 				Bins: bins.BinList{},
@@ -52,14 +53,39 @@ func New(db Db) *StorageWithDb {
 	}
 }
 
-func (storage *StorageWithDb) Save() {
+func (storage *StorageWithDb) save() bool {
 	data, err := json.Marshal(storage)
 	if err != nil {
 		output.PrintError("Не удалось преобразовать в JSON")
-		return
+		return false
 	}
 	err = storage.db.Write(data)
 	if err != nil {
 		output.PrintError(err)
+		return false
 	}
+
+	return true
+}
+
+func (storage *StorageWithDb) AddBin(bin *bins.Bin) bool {
+	storage.Bins = append(storage.Bins, *bin)
+	return storage.save()
+}
+
+func (storage *StorageWithDb) DeleteBin(id string) bool {
+	newBins := make(bins.BinList, 0, len(storage.Bins))
+	deleted := false
+	for _, bin := range storage.Bins {
+		if bin.Id == id {
+			deleted = true
+		} else {
+			newBins = append(newBins, bin)
+		}
+	}
+	if deleted {
+		storage.Bins = newBins
+		return storage.save()
+	}
+	return false
 }
