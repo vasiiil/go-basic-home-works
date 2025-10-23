@@ -22,7 +22,7 @@ func main() {
 		output.PrintError(err)
 		return
 	}
-	_api = api.New(config.New())
+	_api = api.New(config.New(""))
 	store = storage.New(fileDb)
 
 	action, id := parseFlags()

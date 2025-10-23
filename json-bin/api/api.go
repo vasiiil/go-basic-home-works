@@ -24,6 +24,9 @@ type Response struct {
 	Record   bins.BinRecord `json:"record"`
 }
 
+var ErrEmptyId = errors.New("empty id")
+var ErrNotFound = errors.New("404 Not Found")
+
 const baseUrl = "https://api.jsonbin.io/v3/b"
 
 func New(config *config.Config) *Api {
@@ -58,6 +61,9 @@ func (api *Api) request(method string, url string, body []byte) ([]byte, error) 
 	}
 	defer response.Body.Close()
 
+	if response.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
 	if response.StatusCode != http.StatusOK {
 		// fmt.Println(response)
 		return nil, fmt.Errorf("status not 200: %s", response.Status)
@@ -91,7 +97,7 @@ func handleBinResponse(method string, response []byte) (*bins.Bin, error) {
 
 func (api *Api) Get(id string) error {
 	if id == "" {
-		return errors.New("empty id")
+		return ErrEmptyId
 	}
 	response, err := api.request("GET", "/"+id, nil)
 	if err != nil {
@@ -137,7 +143,7 @@ func (api *Api) Create(record *bins.BinRecord) (*bins.Bin, error) {
 
 func (api *Api) Update(id string, record *bins.BinRecord) (*bins.Bin, error) {
 	if id == "" {
-		return nil, errors.New("empty id")
+		return nil, ErrEmptyId
 	}
 
 	body, err := binRecordToJson(record)
@@ -160,7 +166,7 @@ func (api *Api) Update(id string, record *bins.BinRecord) (*bins.Bin, error) {
 
 func (api *Api) Delete(id string) error {
 	if id == "" {
-		return errors.New("empty id")
+		return ErrEmptyId
 	}
 	_, err := api.request("DELETE", "/"+id, nil)
 	if err != nil {
