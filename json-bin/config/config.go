@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	Key string
+	Key        string
+	XMasterKey string
 }
 
 func New() *Config {
@@ -23,7 +24,12 @@ func New() *Config {
 	if !(len(key) == 16 || len(key) == 24 || len(key) == 32) {
 		panic("Некорректная длина ключа")
 	}
+	xMasterKey := os.Getenv("X_MASTER_KEY")
+	if key == "" {
+		panic("Не передан параметр X_MASTER_KEY в переменные окружения")
+	}
 	return &Config{
-		Key: key,
+		Key:        key,
+		XMasterKey: xMasterKey,
 	}
 }

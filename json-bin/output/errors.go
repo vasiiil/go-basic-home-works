@@ -1,6 +1,11 @@
 package output
 
-import "github.com/fatih/color"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/fatih/color"
+)
 
 func PrintError(value any) {
 	intVal, ok := value.(int)
@@ -29,4 +34,12 @@ func PrintError(value any) {
 	// default:
 	// 	color.Red("Неизвестный тип ошибки")
 	// }
+}
+
+func PrintJson(data any) {
+	bytes, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return
+	}
+	fmt.Println(string(bytes))
 }
