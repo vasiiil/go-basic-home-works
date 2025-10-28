@@ -12,8 +12,14 @@ type Config struct {
 	XMasterKey string
 }
 
-func New() *Config {
-	err := godotenv.Load()
+func New(fileName string) *Config {
+	var err error
+	if fileName != "" {
+		err = godotenv.Load(fileName)
+	} else {
+		err = godotenv.Load()
+	}
+
 	if err != nil {
 		output.PrintError("Не загрузились env")
 	}
